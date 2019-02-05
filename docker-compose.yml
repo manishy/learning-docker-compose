@@ -2,6 +2,8 @@ version: '3'
 services:
   db:
     image: postgres
+    volumes: 
+      - 6dc17c5dca91a31985de982eafe7dcf8ff46be8d1e749338f7c38c814b7085ad:/var/lib/postgresql/data
   web:
     build: .
     container_name: mera_app
@@ -11,3 +13,5 @@ services:
       - "DATABASE_URL=postgresql://postgres@db:5432/postgres"
     links:
       - db
+volumes: 
+  6dc17c5dca91a31985de982eafe7dcf8ff46be8d1e749338f7c38c814b7085ad:
