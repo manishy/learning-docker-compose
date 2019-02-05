@@ -1,19 +1,16 @@
 const express = require('express');
-const network = require('network');
 const app=express();
+const {add_user} = require('./dbHandler.js');
 const PORT=8000;
-app.use(express.json());
+app.use(express.static('public'));
+app.use(express.urlencoded());
 app.listen(PORT);
-let content = "<h1>HELLO WORLD<h1>"
 
-app.get('/',(req,res)=>{
-    res.send(content);
-});
-app.get('/nextPage',(req,res)=>{
-    res.send("<h1>HELLO WORLD IN DIFF PAGE<h1>");
+
+app.post('/add_user',(req,res)=>{
+    add_user(req.body.username);
+    res.send(req.body);
 })
-app.get('/ip',(req,res)=>{
-    network.get_active_interface((err,obj)=>res.send(obj["ip_address"]))
-})
+
 
 console.log(`listening at Port${PORT}`);

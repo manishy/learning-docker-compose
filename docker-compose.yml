@@ -1,0 +1,13 @@
+version: '3'
+services:
+  db:
+    image: postgres
+  web:
+    build: .
+    container_name: mera_app
+    ports:
+      - "8000:8000"
+    environment:
+      - "DATABASE_URL=postgresql://postgres@db:5432/postgres"
+    links:
+      - db
