@@ -3,15 +3,51 @@ services:
   db:
     image: postgres
     volumes: 
-      - 6dc17c5dca91a31985de982eafe7dcf8ff46be8d1e749338f7c38c814b7085ad:/var/lib/postgresql/data
-  web:
+      - data_base:/var/lib/postgresql/data
+  web1:
     build: .
-    container_name: mera_app
+    # image: gplmanish/learning-compose-up
+    # container_name: mera_app
     ports:
       - "8000:8000"
+    depends_on:
+      - db
     environment:
-      - "DATABASE_URL=postgresql://postgres@db:5432/postgres"
+      - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
     links:
       - db
+  web2:
+    build: .
+    # image: gplmanish/learning-compose-up
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
+    links:
+      - db
+  
+  web3:
+    build: .
+    # image: gplmanish/learning-compose-up
+    ports:
+      - "8002:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
+    links:
+      - db
+  
+  balancer:
+    build:
+      context: ./loadBalancer/
+      dockerfile: dockerfile
+    ports:
+      - "9000:8080"
+    depends_on:
+      - web1
+      - web2
 volumes: 
-  6dc17c5dca91a31985de982eafe7dcf8ff46be8d1e749338f7c38c814b7085ad:
+  data_base:

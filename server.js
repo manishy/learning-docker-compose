@@ -1,16 +1,13 @@
-const express = require('express');
-const app=express();
-const {add_user} = require('./dbHandler.js');
-const PORT=8000;
-app.use(express.static('public'));
-app.use(express.urlencoded());
+const fs = require("fs");
+const app = require("./app.js");
+const PORT = process.env.PORT || 8000;
+const defaultCs = 'postgres://localhost:5432/manishy';
+const connectionString = process.env.DATABASE_URL||defaultCs;
+const {Client} = require('pg');
+
+const client = new Client(connectionString);
+client.connect();
+app.initialize(client, fs);
 app.listen(PORT);
-
-
-app.post('/add_user',(req,res)=>{
-    add_user(req.body.username);
-    res.send(req.body);
-})
-
 
 console.log(`listening at Port${PORT}`);

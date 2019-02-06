@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html>
 <body>
-
+  <head>
+    <title>Users Page</title>
+    <script src="./js/index.js"></script>
+  </head>
 <h2>HTML Forms</h2>
 
-<form action="/add_user" method="POST">
-  username:<br>
-  <input type="text" name="username" value="">
-  <br>
-  <input type="submit" name="" id="">
-</form>
+<textarea id="user" type="text" name="user" required></textarea>
+<br><button id="submitButton" type="submit"  ><b>Submit</b></button>
+
+<div id="userField">
+  <p style="font-family:sans-serif; font-weight: bold">USERS :</p>
+  <p style="font-family:sans-serif" id="users"></p>
+</div>
 </body>
 </html>
