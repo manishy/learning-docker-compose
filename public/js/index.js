@@ -25,16 +25,16 @@ const setClickListener = function(selector,listener) {
 
 const handleServerResponse = function(responseText){
     let allUsers = responseText['users'];
-    // console.log(responseText);
     getElement("#user").value = "";  
     renderUsers(allUsers);
   }
   
 
+
 const addAndShowAllUser = function(){
     return sendAjaxRequest('POST','/add_user',function(){
         handleServerResponse(JSON.parse(this.responseText));
-    },`username=${getElement("#user").value}`);
+    },`username=${getElement('#user').value}`);
   };
 
 
@@ -45,7 +45,6 @@ const addAndShowAllUser = function(){
         usersToShow.push([`${index+1}: ${user["user_name"]}`])
     });
     usersToShow = usersToShow.join(line);
-    console.log(usersToShow);
     getElement("#users").innerHTML = usersToShow;
   };
   

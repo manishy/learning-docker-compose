@@ -8,8 +8,8 @@ services:
     build: .
     # image: gplmanish/learning-compose-up
     # container_name: mera_app
-    ports:
-      - "8000:8000"
+    # ports:
+    #   - "8000:8000"
     depends_on:
       - db
     environment:
@@ -19,8 +19,8 @@ services:
   web2:
     build: .
     # image: gplmanish/learning-compose-up
-    ports:
-      - "8001:8000"
+    # ports:
+    #   - "8001:8000"
     depends_on:
       - db
     environment:
@@ -31,8 +31,8 @@ services:
   web3:
     build: .
     # image: gplmanish/learning-compose-up
-    ports:
-      - "8002:8000"
+    # ports:
+    #   - "8002:8000"
     depends_on:
       - db
     environment:
@@ -49,5 +49,9 @@ services:
     depends_on:
       - web1
       - web2
+      - web3
+    # volumes: 
+    #   - loadBalancer/:app/
 volumes: 
   data_base:
+  # loadBalancer:

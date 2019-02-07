@@ -7,7 +7,7 @@ app.initialize = function(client, fs) {
   app.client = client;
 };
 
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({extended: true}));
 app.use(handelerLib.logRequest);
 
 app.post('/add_user',handelerLib.addUser);
