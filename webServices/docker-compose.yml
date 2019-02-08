@@ -8,12 +8,15 @@ services:
     build: .
     # image: gplmanish/learning-compose-up
     # container_name: mera_app
-    # ports:
-    #   - "8000:8000"
+    ports:
+      - "8000:8000"
     depends_on:
       - db
+      - proxy
     environment:
       - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
+      - PROXY_URL=proxy:8080
+      - WEB_DNS=web1
     links:
       - db
   web2:
@@ -23,8 +26,11 @@ services:
     #   - "8001:8000"
     depends_on:
       - db
+      - proxy
     environment:
       - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
+      - PROXY_URL=proxy:8080
+      - WEB_DNS=web2
     links:
       - db
   
@@ -35,21 +41,24 @@ services:
     #   - "8002:8000"
     depends_on:
       - db
+      - proxy
     environment:
       - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
+      - PROXY_URL=proxy:8080
+      - WEB_DNS=web3
     links:
       - db
   
-  balancer:
+  proxy:
     build:
-      context: ./loadBalancer/
+      context: ./../loadBalancer/
       dockerfile: dockerfile
     ports:
       - "9000:8080"
-    depends_on:
-      - web1
-      - web2
-      - web3
+    # depends_on:
+    #   - web1
+    #   - web2
+    #   - web3
     # volumes: 
     #   - loadBalancer/:app/
 volumes: 
