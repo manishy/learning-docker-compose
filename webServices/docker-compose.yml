@@ -13,7 +13,6 @@ services:
       - backend
     depends_on:
       - db
-      - proxy
     environment:
       - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
       - PROXY_URL=proxy:8080
@@ -21,18 +20,13 @@ services:
     links:
       - db
 
-
   web2:
     build: .
-    # image: gplmanish/learning-compose-up
-    # ports:
-    #   - "8001:8000"
     networks:
       - frontend
       - backend
     depends_on:
       - db
-      - proxy
     environment:
       - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
       - PROXY_URL=proxy:8080
@@ -42,15 +36,11 @@ services:
   
   web3:
     build: .
-    # image: gplmanish/learning-compose-up
-    # ports:
-    #   - "8002:8000"
     networks:
       - frontend
       - backend
     depends_on:
       - db
-      - proxy
     environment:
       - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
       - PROXY_URL=proxy:8080
@@ -60,14 +50,16 @@ services:
   
   proxy:
     build:
-      context: ./../loadBalancer/
+      context: ./../proxy/
       dockerfile: dockerfile
     networks:
       - frontend
+    depends_on:
+      - web1
+      - web2
+      - web3
     ports:
       - "9000:8080"
-    # depends_on:
-    #   - web1
 volumes: 
   data_base:
 networks:

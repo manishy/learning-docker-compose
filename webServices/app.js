@@ -2,8 +2,7 @@ const express = require("express");
 const app = express();
 const handelerLib = require('./lib/handelerLib.js');
 
-app.initialize = function(client, isAvailable) {
-  app.isAvailable = isAvailable;
+app.initialize = function(client) {
   app.client = client;
 };
 

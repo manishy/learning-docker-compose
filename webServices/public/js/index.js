@@ -58,7 +58,7 @@ const addAndShowAllUser = function(){
 
   const load = function(){
     showUsers();
-    // intervalId = setInterval(showUsers, 5000);
+    intervalId = setInterval(showUsers, 8000);
     setClickListener("#submitButton",addAndShowAllUser)
   }
 
