@@ -1,0 +1,16 @@
+{
+    "services": [
+        {
+            "host": "web1",
+            "port":8000
+        },
+        {
+            "host": "web2",
+            "port":8000
+        },
+        {
+            "host": "web3",
+            "port":8000
+            }
+        ]
+}

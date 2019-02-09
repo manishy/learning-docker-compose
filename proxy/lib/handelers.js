@@ -1,16 +1,15 @@
 const request = require('request');
 const http = require('http');
 
-const config = require('./../proxy.json');
-const allServers = config["webs"];
-const port = config["port"];
-let activeServer = "";
+const config = require('./../config.json');
+const allServices = config["services"];
+let activeServer;
 
-const log = function (webServer, url, error, statusCode) {
-    console.log('------------>', `webService is : http://${webServer}${url}`);
+const log = function (webService, url, error, statusCode) {
+    console.log('------------>', `webService is : http://${webService}${url}`);
     console.log('------------>', `request is : ${url}`);
     console.log('req is :', url);
-    console.log('service is :', webServer);
+    console.log('service is :', webService);
     console.log('error:', error);
     console.log('statusCode:', statusCode);
 };
@@ -27,8 +26,9 @@ const getReqPipe = function (req, res) {
         console.log("Server Down");
         return;
     }
-
-    request(`http://${activeServer}:${port}${req.url}`, (error, response, body) => {
+    let host = activeServer['host'];
+    let port = activeServer['port'];
+    request(`http://${host}:${port}${req.url}`, (error, response, body) => {
         let statusCode = response && response.statusCode;
         log(activeServer, req.url, error, statusCode);
         res.send(body);
@@ -41,7 +41,9 @@ const postReqPipe = function (req, res) {
         console.log("Server Down");
         return;
     }
-    request.post(`http://${activeServer}:${port}${req.url}`, {
+    let host = activeServer['host'];
+    let port = activeServer['port'];
+    request.post(`http://${host}:${port}${req.url}`, {
         form: req.body
     }, (error, response, body) => {
         let statusCode = response && response.statusCode;
@@ -51,7 +53,7 @@ const postReqPipe = function (req, res) {
 };
 
 
-const handleResponse = function (response, web) {
+const handleResponse = function (response, webConfig) {
     response.setEncoding('utf8');
     let rawData = '';
     response.on('data', (chunk) => {
@@ -60,9 +62,9 @@ const handleResponse = function (response, web) {
     response.on('end', () => {
         try {
             const parsedData = JSON.parse(rawData);
-            parsedData["DNS"] = web;
+            parsedData["SERVICE"] = webConfig;
             console.log('latest status is \n********', parsedData, '********');
-            activeServer = web;
+            activeServer = webConfig;
         } catch (err) {
             console.error(err);
         }
@@ -71,9 +73,11 @@ const handleResponse = function (response, web) {
 
 
 const updateActiveServer = function () {
-    let checkService = function (web, remaining) {
+    let checkService = function (webConfig, remaining) {
+        let web = webConfig['host'];
+        let port = webConfig['port'];
         http.get(`http://${web}:${port}/health`, {timeout: 100},
-        (response) => handleResponse(response, web))
+        (response) => handleResponse(response, webConfig))
         .on('error', (err) => {
             console.error(`Got error: ${err}`);
         })
@@ -84,7 +88,7 @@ const updateActiveServer = function () {
                 }
             })
         };
-    checkService(allServers[0], allServers.slice(1));
+    checkService(allServices[0], allServices.slice(1));
 }
 
 
