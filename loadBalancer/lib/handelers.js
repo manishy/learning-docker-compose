@@ -1,9 +1,9 @@
 const request = require('request');
+const http = require('http');
 
-let count = 0;
-// const config = require('./../balancerConfig.json');
-// const webs = config["webs"];
-// const port = config["port"];
+const config = require('./../balancerConfig.json');
+const allServers = config["webs"];
+const port = config["port"];
 const log = function (webServer, url, error, statusCode) {
     console.log('------------>', `webServer is : http://${webServer}${url}`);
     console.log('------------>', `request is : ${url}`);
@@ -11,40 +11,40 @@ const log = function (webServer, url, error, statusCode) {
     console.log('webServer is :', webServer);
     console.log('error:', error);
     console.log('statusCode:', statusCode);
-}
+};
 
-const getReqPipe = function (req, res) {
-    const config = req.app.webConfigs
-    // let webs = config["webs"];
-    let port = config["port"];
-    // let index = count % webs.length;
-    // let webServer = webs[index];
-    let webServer = req.app.activeServer;
-    // count++;
-    if(!webServer){
+
+const logRequest = (req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+};
+
+
+
+const getReqHandler = function (req, res, webServer) {
+    if (!webServer) {
         res.send("server down");
         console.log("server down");
         return;
     }
-    // console.log("should not come here");
-    
+
     request(`http://${webServer}:${port}${req.url}`, (error, response, body) => {
         let statusCode = response && response.statusCode;
         log(webServer, req.url, error, statusCode);
         res.send(body);
     })
-};
+}
 
-const postReqPipe = function (req, res) {
-    // const config = req.app.webConfigs
-    // let webs = config["webs"];
-    // let port = config["port"];
-    // let index = count % webs.length;
-    // let webServer = webs[index];
-    // count++;
-    const config = req.app.webConfigs
-    let port = config["port"];
-    let webServer = req.app.activeServer;
+const getReqPipe = function (req, res) {
+    getActiveWeb(req, res, getReqHandler);
+}
+
+const postReqHandler = function (req, res, webServer) {
+    if (!webServer) {
+        res.send("server down");
+        console.log("server down");
+        return;
+    }
     request.post(`http://${webServer}:${port}${req.url}`, {
         form: req.body
     }, (error, response, body) => {
@@ -52,33 +52,48 @@ const postReqPipe = function (req, res) {
         log(webServer, req.url, error, statusCode);
         res.send(body);
     });
+
+}
+
+const postReqPipe = function (req, res) {
+    getActiveWeb(req, res, postReqHandler);
 };
 
-const registerWeb = function (req, res) {
-    req.app.webConfigs["webs"].push(req.body.webDns);
-    console.log(req.app.webConfigs);
-    res.end();
-};
 
-const updateActiveServer = function (req, res, next) {
-    let allServers = req.app.webConfigs["webs"];
-    let port = req.app.webConfigs["port"];
 
-    let checkService = (web, remaining)=> {
-        request(`http://${web}:${port}/health`, (error, response, body) => {
-            if (error && remaining.length > 0) {
-                  checkService(remaining[0], remaining.slice(1));
-                  return;
+
+
+const getActiveWeb = function (req, res, handler) {
+    let checkService = function (web, remaining) {
+        http.get(`http://${web}:${port}/health`, {timeout:1000}, (response) => {
+            const {statusCode} = response;
+            if (statusCode!=200 && remaining.length>0) {
+                return checkService(remaining[0], remaining.slice(1));
             }
-            let statusCode = response && response.statusCode;
-            log(web, req.url, error, statusCode);
-            console.log("body===============================",body);
-            if(body&&body.isAvailable){
-            req.app.activeServer = body["DNS"];
+            response.setEncoding('utf8');
+            let rawData = '';
+            response.on('data', (chunk) => {
+                rawData += chunk;
+            });
+            response.on('end', () => {
+                try {
+                    const parsedData = JSON.parse(rawData);
+                    console.log("Status inside getActive web ********",parsedData);
+                    handler(req, res, parsedData["DNS"]);
+                } catch (e) {
+                    console.error(e.message);
+                }
+            });
+        }).on('error', (e) => {
+            console.error(`Got error: ${e.message}`);
+        }).on('timeout', ()=>{
+            console.log(`${web} is sleeping`);
+            if(remaining.length>0){
+                return checkService(remaining[0], remaining.slice(1));
             }
-            next();
         })
-    }
+
+    };
     checkService(allServers[0], allServers.slice(1));
 };
 
@@ -86,6 +101,5 @@ const updateActiveServer = function (req, res, next) {
 module.exports = {
     getReqPipe,
     postReqPipe,
-    updateActiveServer,
-    registerWeb
+    logRequest
 };

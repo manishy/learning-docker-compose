@@ -10,13 +10,11 @@ app.initialize = function() {
   }
 };
 
+
 app.use(express.urlencoded({extended: true}));
-app.use(handelers.updateActiveServer);
+app.use(handelers.logRequest);
 
-// app.get('/health', handelers.updateActiveServer);
 app.get('*',handelers.getReqPipe);
-app.post('/registerWeb',handelers.registerWeb);
-
 app.post('*',handelers.postReqPipe);
 
 module.exports = app;

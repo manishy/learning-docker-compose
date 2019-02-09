@@ -20,6 +20,44 @@ services:
       - WEB_DNS=web1
     links:
       - db
+
+
+  web2:
+    build: .
+    # image: gplmanish/learning-compose-up
+    # ports:
+    #   - "8001:8000"
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - db
+      - proxy
+    environment:
+      - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
+      - PROXY_URL=proxy:8080
+      - WEB_DNS=web2
+    links:
+      - db
+  
+  web3:
+    build: .
+    # image: gplmanish/learning-compose-up
+    # ports:
+    #   - "8002:8000"
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - db
+      - proxy
+    environment:
+      - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
+      - PROXY_URL=proxy:8080
+      - WEB_DNS=web3
+    links:
+      - db
+  
   proxy:
     build:
       context: ./../loadBalancer/
@@ -28,8 +66,8 @@ services:
       - frontend
     ports:
       - "9000:8080"
-    depends_on:
-      - web1
+    # depends_on:
+    #   - web1
 volumes: 
   data_base:
 networks:

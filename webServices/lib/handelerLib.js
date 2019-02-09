@@ -54,6 +54,7 @@ const sleep = function (req, res) {
         currentTime = new Date().getTime()
     }
     updateAvailability(req, true);
+    res.end();
 };
 
 const getAvailability = function (req, res) { ////   todo
