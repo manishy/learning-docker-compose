@@ -32,10 +32,9 @@ const sleep = function (req, res) {
     res.end();
 };
 
-const getAvailability = function (req, res) {
+const getHealthStatus = function (req, res) {
     res.json({
-        "statusCode": 200,
-        "DNS": `${process.env.WEB_DNS}`
+        "statusCode": 200
     });
 }
 
@@ -44,5 +43,5 @@ module.exports = {
     addUser,
     getUsers,
     sleep,
-    getAvailability
+    getHealthStatus
 }

@@ -1,6 +1,6 @@
 const app = require("./app.js");
 const PORT = process.env.PORT || 8000;
-const defaultCs = 'postgres://localhost:5432/manishy';
+const defaultCs = 'postgres://localhost:5432/postgres';
 const connectionString = process.env.DATABASE_URL||defaultCs;
 const {Client} = require('pg');
 

@@ -13,7 +13,7 @@ app.post('/add_user',handelerLib.addUser);
 
 app.get('/users',handelerLib.getUsers);
 app.get('/sleep',handelerLib.sleep);
-app.get('/health',handelerLib.getAvailability);
+app.get('/health',handelerLib.getHealthStatus);
 
 
 app.use(express.static('public'));

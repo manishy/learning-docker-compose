@@ -15,8 +15,6 @@ services:
       - db
     environment:
       - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
-      - PROXY_URL=proxy:8080
-      - WEB_DNS=web1
     links:
       - db
 
@@ -29,8 +27,6 @@ services:
       - db
     environment:
       - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
-      - PROXY_URL=proxy:8080
-      - WEB_DNS=web2
     links:
       - db
   
@@ -43,8 +39,6 @@ services:
       - db
     environment:
       - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
-      - PROXY_URL=proxy:8080
-      - WEB_DNS=web3
     links:
       - db
   

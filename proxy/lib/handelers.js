@@ -23,8 +23,8 @@ const logRequest = (req, res, next) => {
 
 const getReqPipe = function (req, res) {
     if (!activeServer) {
-        res.send("server down");
-        console.log("server down");
+        res.send("<head><meta http-equiv='refresh' content='4'></head><b>Server Down </br> Waiting to be up ... </b>");
+        console.log("Server Down");
         return;
     }
 
@@ -35,11 +35,10 @@ const getReqPipe = function (req, res) {
     })
 }
 
-
 const postReqPipe = function (req, res) {
     if (!activeServer) {
-        res.send("server down");
-        console.log("server down");
+        res.send("<head><meta http-equiv='refresh' content='4'></head><b>Server Down </br> Waiting to be up ... </b>");
+        console.log("Server Down");
         return;
     }
     request.post(`http://${activeServer}:${port}${req.url}`, {
@@ -52,7 +51,7 @@ const postReqPipe = function (req, res) {
 };
 
 
-const handleResponse = function(response){
+const handleResponse = function (response, web) {
     response.setEncoding('utf8');
     let rawData = '';
     response.on('data', (chunk) => {
@@ -61,27 +60,30 @@ const handleResponse = function(response){
     response.on('end', () => {
         try {
             const parsedData = JSON.parse(rawData);
-            console.log('latest status is \n********', parsedData , '********');
-            activeServer = parsedData['DNS'];
-        } catch (e) {
-            console.error(e);
+            parsedData["DNS"] = web;
+            console.log('latest status is \n********', parsedData, '********');
+            activeServer = web;
+        } catch (err) {
+            console.error(err);
         }
     });
 }
 
 
-const updateActiveServer = function(){
+const updateActiveServer = function () {
     let checkService = function (web, remaining) {
-        http.get(`http://${web}:${port}/health`, {timeout:100}, handleResponse).on('error', (err) => {
+        http.get(`http://${web}:${port}/health`, {timeout: 100},
+        (response) => handleResponse(response, web))
+        .on('error', (err) => {
             console.error(`Got error: ${err}`);
-        }).on('timeout', ()=>{
-            console.log(`${web} is sleeping`);
-            if(remaining.length>0){
-                return checkService(remaining[0], remaining.slice(1));
-            }
         })
-
-    };
+        .on('timeout', () => {
+                console.log(`${web} is sleeping`);
+                if (remaining.length > 0) {
+                    return checkService(remaining[0], remaining.slice(1));
+                }
+            })
+        };
     checkService(allServers[0], allServers.slice(1));
 }
 
