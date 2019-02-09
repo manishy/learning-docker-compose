@@ -1,4 +1,4 @@
 {
-    "webs":["web1", "web2", "web3"],
+    "webs":["web1"],
     "port": 8000
 }

@@ -2,14 +2,15 @@ version: '3'
 services:
   db:
     image: postgres
+    networks:
+      - backend
     volumes: 
       - data_base:/var/lib/postgresql/data
   web1:
     build: .
-    # image: gplmanish/learning-compose-up
-    # container_name: mera_app
-    ports:
-      - "8000:8000"
+    networks:
+      - frontend
+      - backend
     depends_on:
       - db
       - proxy
@@ -19,48 +20,18 @@ services:
       - WEB_DNS=web1
     links:
       - db
-  web2:
-    build: .
-    # image: gplmanish/learning-compose-up
-    # ports:
-    #   - "8001:8000"
-    depends_on:
-      - db
-      - proxy
-    environment:
-      - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
-      - PROXY_URL=proxy:8080
-      - WEB_DNS=web2
-    links:
-      - db
-  
-  web3:
-    build: .
-    # image: gplmanish/learning-compose-up
-    # ports:
-    #   - "8002:8000"
-    depends_on:
-      - db
-      - proxy
-    environment:
-      - DATABASE_URL=${PROTOCOL}://${DB_USER}:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
-      - PROXY_URL=proxy:8080
-      - WEB_DNS=web3
-    links:
-      - db
-  
   proxy:
     build:
       context: ./../loadBalancer/
       dockerfile: dockerfile
+    networks:
+      - frontend
     ports:
       - "9000:8080"
-    # depends_on:
-    #   - web1
-    #   - web2
-    #   - web3
-    # volumes: 
-    #   - loadBalancer/:app/
+    depends_on:
+      - web1
 volumes: 
   data_base:
-  # loadBalancer:
+networks:
+  frontend:
+  backend:
