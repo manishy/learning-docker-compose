@@ -1,12 +1,13 @@
+const fs = require('fs');
 const request = require('request');
 const http = require('http');
 
-const config = require('./../config.json');
+let config = JSON.parse(fs.readFileSync('./config.json'));
 const allServices = config["services"];
 let activeServer;
 
 const log = function (webService, url, error, statusCode) {
-    console.log('------------>', `webService is : http://${webService}${url}`);
+    console.log('------------>', `API is : http://${webService}${url}`);
     console.log('------------>', `request is : ${url}`);
     console.log('req is :', url);
     console.log('service is :', webService);
@@ -30,7 +31,7 @@ const getReqPipe = function (req, res) {
     let port = activeServer['port'];
     request(`http://${host}:${port}${req.url}`, (error, response, body) => {
         let statusCode = response && response.statusCode;
-        log(activeServer, req.url, error, statusCode);
+        log(host, req.url, error, statusCode);
         res.send(body);
     })
 }
@@ -91,10 +92,27 @@ const updateActiveServer = function () {
     checkService(allServices[0], allServices.slice(1));
 }
 
+const watchFile = function(){
+    let fileName = './config.json';
+    let watcher = fs.watch(fileName);
+    console.log(`watching ${fileName}`);
+    config = watcher.on("change", (String, fileName)=>{
+        console.log("Change hua ...")
+        config = fs.readFile(fileName, 'utf8', (err, content) => {
+            if (err) {
+                console.log(err);
+                return;
+            };
+            config = JSON.parse(content);
+          });
+    });
+};
+
 
 module.exports = {
     getReqPipe,
     postReqPipe,
     logRequest,
-    updateActiveServer
+    updateActiveServer,
+    watchFile
 };

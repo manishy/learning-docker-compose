@@ -1,6 +1,7 @@
 const app = require('./app');
-const handelerLib = require('./lib/handelers.js');
-setInterval(handelerLib.updateActiveServer,5000);
+const handlerLib = require('./lib/handelers.js');
+setInterval(handlerLib.updateActiveServer,5000);
+handlerLib.watchFile();
 const PORT=8080;
 app.listen(PORT);
 
