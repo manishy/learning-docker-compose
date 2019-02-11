@@ -2,8 +2,8 @@ const fs = require('fs');
 const request = require('request');
 const http = require('http');
 
-let config = JSON.parse(fs.readFileSync('./config.json'));
-const allServices = config["services"];
+const config = JSON.parse(fs.readFileSync('./config.json'));
+let allServices = config["services"];
 let activeServer;
 
 const log = function (webService, url, error, statusCode) {
@@ -89,6 +89,7 @@ const updateActiveServer = function () {
                 }
             })
         };
+    console.log("SERVICES   ###################", allServices)
     checkService(allServices[0], allServices.slice(1));
 }
 
@@ -96,14 +97,15 @@ const watchFile = function(){
     let fileName = './config.json';
     let watcher = fs.watch(fileName);
     console.log(`watching ${fileName}`);
-    config = watcher.on("change", (String, fileName)=>{
+    watcher.on("change", (String, fileName)=>{
         console.log("Change hua ...")
-        config = fs.readFile(fileName, 'utf8', (err, content) => {
+        fs.readFile(fileName, 'utf8', (err, content) => {
             if (err) {
                 console.log(err);
                 return;
             };
-            config = JSON.parse(content);
+            allServices = JSON.parse(content)["services"];
+            console.log(allServices);
           });
     });
 };
